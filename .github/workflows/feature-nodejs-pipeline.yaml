@@ -26,7 +26,7 @@ jobs:
         # echo "APP_VERSION=${echo ${GITHUB_SHA} | cut -c1-9 }" >> $GITHUB_ENV
         #if you store it in GITHUB_ENV you can refer in other steps in the same job
 
-        echo "APP_VERSION=${ ${GITHUB_SHA::9}" >> $GITHUB_ENV
+        echo "APP_VERSION=${GITHUB_SHA::9}" >> $GITHUB_ENV
 
     - name: print inputs
       run: echo ${{inputs.project}}- ${{inputs.component}}- ${{inputs.environment}} - ${APP_VERSION}   
