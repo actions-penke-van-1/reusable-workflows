@@ -11,6 +11,8 @@ on:
       environment:
         required: true
         type: string
+env:
+  ACC_ID: 131676642204 
 jobs:
   nodejs-pipeline:
     runs-on: self-hosted
@@ -19,5 +21,22 @@ jobs:
       uses: actions/checkout@v6
     - name: list files
       run: ls -la
+    - name: get the version- commitID in 9 letters
+      run: |
+        # echo "APP_VERSION=${echo ${GITHUB_SHA} | cut -c1-9 }" >> $GITHUB_ENV
+        #if you store it in GITHUB_ENV you can refer in other steps in the same job
+
+        echo "APP_VERSION=${ ${GITHUB_SHA::9}" >> $GITHUB_ENV
+
     - name: print inputs
-      run: echo ${{inputs.project}}- ${{inputs.component}}- ${{inputs.environment}}     
+      run: echo ${{inputs.project}}- ${{inputs.component}}- ${{inputs.environment}} - ${APP_VERSION}   
+
+
+    - name: install deps
+      run: npm install
+    - name: run unit tests
+      run: echo "unit tests"
+    - name: DOcker build
+      run: |
+        docker build -t ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${{inputs.project}}/${{inputs.component}}:${APP_VERSION} .
+        docker images
