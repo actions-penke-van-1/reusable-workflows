@@ -53,6 +53,19 @@ jobs:
       run: |
         docker build -t ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${{inputs.project}}/${{inputs.component}}:${APP_VERSION} .
         docker images
+# DOcker commit status
+
+    - name: Update docker build status
+      if: always()
+      uses: actions-penke-van-1/reusable-workflows/.github/actions/update-commit-status@main
+      with:
+        sha: ${{ github.sha }}
+        state: ${{ steps.docker_build.outcome }}     # success / failure / cancelled
+        context: DOCKER_BUILD
+        description: ${{ steps.docker_build.outcome }}
+
+
+
 #scans(Trivy)
     - name: Security Check ( Trivy)
       id: security_check
