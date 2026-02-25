@@ -35,7 +35,20 @@ jobs:
     - name: install deps
       run: npm install
     - name: run unit tests
+      id: unit_tests
       run: echo "unit tests"
+      
+      #commit -update-status - reusable action calling
+    - name: Update unit tests status
+      if: always()
+      uses: actions-penke-van-1/reusable-workflows/.github/actions/update-commit-status@main
+      with:
+        sha: ${{ github.sha }}
+        state: ${{ steps.unit_tests.outcome }}     # success / failure / cancelled
+        context: UNIT_TESTS
+        description: ${{ steps.unit_tests.outcome }}
+
+
     - name: DOcker build
       run: |
         docker build -t ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${{inputs.project}}/${{inputs.component}}:${APP_VERSION} .
