@@ -37,7 +37,7 @@ jobs:
     - name: run unit tests
       id: unit_tests
       run: echo "unit tests"
-      
+
       #commit -update-status - reusable action calling
     - name: Update unit tests status
       if: always()
@@ -53,6 +53,42 @@ jobs:
       run: |
         docker build -t ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${{inputs.project}}/${{inputs.component}}:${APP_VERSION} .
         docker images
+#scans(Trivy)
+    - name: Security Check ( Trivy)
+      id: security_check
+      # env:
+      #   GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      shell: bash
+      run: |
+
+        echo "🔍 Running Trivy scan..."
+        trivy image \
+          --scanners vuln \
+          --severity HIGH,CRITICAL,MEDIUM \
+          --pkg-types os \
+          --exit-code 1 \
+          --format table \
+          ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${{ inputs.project }}/${{ inputs.component }}:${APP_VERSION}
+
+        TRIVY_RESULT=$?
+
+        if [ "$TRIVY_RESULT" -ne 0 ]; then
+          echo "❌ Trivy found vulnerabilities (HIGH/CRITICAL/MEDIUM)"
+          exit 1
+        fi
+
+        echo "✅ Trivy scan passed without blocking issues."
+
+    - name: Update scan status
+      if: always()
+      uses: actions-penke-van-1/reusable-workflows/.github/actions/update-commit-status@main
+      with:
+        sha: ${{ github.sha }}
+        state: ${{ steps.security_check.outcome }}     # success / failure / cancelled
+        context: SECURITY_CHECK
+        description: ${{ steps.security_check.outcome }}
+
+
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v6.0.0
       with:
