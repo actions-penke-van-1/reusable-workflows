@@ -117,8 +117,18 @@ jobs:
 
     - name: Deploy to DEV 
       run: echo "Deploy code"
-      
+
     - name: authenticate to EKS
       run: |
         aws eks update-kubeconfig --region us-east-1 --name roboshop-dev
-        kubectl get nodes      
+        kubectl get nodes   
+
+    - name: authenticate to EKS
+      run: |
+        aws eks update-kubeconfig --region us-east-1 --name roboshop-dev
+        kubectl get nodes   
+
+    - name: checkout catalogue deploy repo
+      uses: actions/checkout@v6
+      with:
+        repository: Penke-Saivan/catalogue-deploy        
