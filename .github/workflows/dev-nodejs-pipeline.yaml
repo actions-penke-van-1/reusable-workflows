@@ -131,4 +131,7 @@ jobs:
     - name: checkout catalogue deploy repo
       uses: actions/checkout@v6
       with:
-        repository: Penke-Saivan/catalogue-deploy        
+        repository: Penke-Saivan/catalogue-deploy    
+
+    - name: ls 
+      run: ls -la           
